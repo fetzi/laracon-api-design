@@ -1,0 +1,205 @@
+openapi: 3.0.0
+info:
+  title: todo
+  version: '1.0'
+  contact:
+    url: 'http://domain.test'
+    email: me@domain.test
+  description: A Sample API for a Todo App
+servers:
+  - url: 'http://localhost:8000/api/todos'
+paths:
+  /:
+    get:
+      summary: Get All Todos
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  links:
+                    type: object
+                    properties:
+                      self:
+                        type: string
+                        format: uri
+                      next:
+                        type: string
+                        format: uri
+                      last:
+                        type: string
+                        format: uri
+                    required:
+                      - self
+                      - next
+                      - last
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/todo'
+              examples: {}
+      operationId: getTodos
+      description: Retrieve a list of all the available todos
+      security: []
+    post:
+      summary: Create new Todo
+      tags: []
+      responses:
+        '201':
+          description: Created
+          headers:
+            Location:
+              schema:
+                type: string
+                format: uri
+              description: URI of the new object
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/todo'
+      operationId: createTodo
+      description: Creates a new Todo item to complete
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  minLength: 1
+                description:
+                  type: string
+              required:
+                - title
+        description: Content of the new Todo
+    parameters: []
+  '/{todo_uuid}':
+    parameters:
+      - schema:
+          type: string
+          format: uuid
+          example: b646c96b-9449-4a99-8be5-119f7f9d302c
+        name: todo_uuid
+        in: path
+        required: true
+        description: UUID of the Todo
+    get:
+      summary: getTodo
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  links:
+                    type: object
+                    properties:
+                      self:
+                        type: string
+                        format: uri
+                    required:
+                      - self
+                  data:
+                    $ref: '#/components/schemas/todo'
+      operationId: getTodo
+      description: Returns the specified Todo Item
+    put:
+      summary: updateTodo
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  links:
+                    type: object
+                    properties:
+                      self:
+                        type: string
+                        format: uri
+                    required:
+                      - self
+                  data:
+                    $ref: '#/components/schemas/todo'
+      operationId: put-todo_uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/todo'
+    delete:
+      summary: ''
+      operationId: deleteTodo
+      responses:
+        '204':
+          description: No Content
+      description: Removes a todo from the list
+components:
+  schemas:
+    todo:
+      title: todo
+      type: object
+      x-examples: {}
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: ad2277a3-0e80-4a81-a5a4-8bc4b703a1ac
+        attributes:
+          type: object
+          properties:
+            title:
+              type: string
+              example: Clean Garage
+              minLength: 1
+            description:
+              type: string
+              example: Make sure to break down the boxes
+            created_at:
+              type: string
+              format: date-time
+              example: '2020-04-12 09:23:51'
+            last_updated:
+              type: string
+              example: '2020-04-13 09:23:51'
+            status:
+              type: boolean
+              enum:
+                - '1'
+                - '0'
+              example: '0'
+          required:
+            - title
+        links:
+          type: object
+          properties:
+            self:
+              type: string
+              format: uri
+          required:
+            - self
+        type:
+          type: string
+          pattern: todo
+      description: ''
+  securitySchemes:
+    api-token:
+      name: API Key
+      type: apiKey
+      in: query
+security:
+  - Bearer Token: []
